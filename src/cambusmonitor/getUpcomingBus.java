@@ -23,16 +23,10 @@ public class getUpcomingBus {
     //
     private String[] arrival = new String[3];
     
-    public getUpcomingBus(){
-        upComingBus bus1 = new upComingBus();
-        upComingBus bus2 = new upComingBus();
-        upComingBus bus3 = new upComingBus();
-    }
-    
     public void track(){
         try {
             //get API xml file
-            URL xmlURL=new URL("http://api.ebongo.org/prediction?stopid=1050&api_key=xApBvduHbU8SRYvc74hJa7jO70Xx4XNO");
+            URL xmlURL=new URL("http://api.ebongo.org/buslocation?agency=uiowa&route=red&api_key=xApBvduHbU8SRYvc74hJa7jO70Xx4XNO");
             InputStream xml = xmlURL.openStream();
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
@@ -45,7 +39,7 @@ public class getUpcomingBus {
                  doc.getDocumentElement().getNodeName());
 
 
-            NodeList listOfPredictions = doc.getElementsByTagName("prediction");
+            NodeList listOfPredictions = doc.getElementsByTagName("bus");
             int totalPredictions = listOfPredictions.getLength();
             System.out.println("Total no of predictions : " + totalPredictions);
 
@@ -58,30 +52,36 @@ public class getUpcomingBus {
                     Element firstPredictionElement = (Element)firstPredictionNode;
 
                     //-------
-                    NodeList tagList = firstPredictionElement.getElementsByTagName("tag");
+                    NodeList tagList = firstPredictionElement.getElementsByTagName("id");
                     Element tagElement = (Element)tagList.item(0);
 
                     NodeList textTagList = tagElement.getChildNodes();
-                    System.out.println("tag : " + 
+                    System.out.println("id : " + 
                            ((Node)textTagList.item(0)).getNodeValue().trim());
 
                     //-------
-                    NodeList agencyList = firstPredictionElement.getElementsByTagName("agency");
+                    NodeList agencyList = firstPredictionElement.getElementsByTagName("lat");
                     Element agencyElement = (Element)agencyList.item(0);
 
                     NodeList textAgencyList = agencyElement.getChildNodes();
-                    System.out.println("agency : " + 
+                    System.out.println("lat : " + 
                            ((Node)textAgencyList.item(0)).getNodeValue().trim());
 
                     //-------
-                    NodeList minutesList = firstPredictionElement.getElementsByTagName("minutes");
+                    NodeList minutesList = firstPredictionElement.getElementsByTagName("lng");
                     Element minutesElement = (Element)minutesList.item(0);
 
                     NodeList textMinList = minutesElement.getChildNodes();
-                    System.out.println("minutes : " + 
+                    System.out.println("lng : " + 
                            ((Node)textMinList.item(0)).getNodeValue().trim());
-
                     //------
+                    
+                    NodeList headingList = firstPredictionElement.getElementsByTagName("lng");
+                    Element headingElement = (Element)headingList.item(0);
+
+                    NodeList textHeadingList = headingElement.getChildNodes();
+                    System.out.println("heading : " + 
+                           ((Node)textHeadingList.item(0)).getNodeValue().trim());
                 }
             }
         }
