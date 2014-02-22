@@ -76,7 +76,7 @@ public class getUpcomingBus {
                            ((Node)textMinList.item(0)).getNodeValue().trim());
                     //------
                     
-                    NodeList headingList = firstPredictionElement.getElementsByTagName("lng");
+                    NodeList headingList = firstPredictionElement.getElementsByTagName("heading");
                     Element headingElement = (Element)headingList.item(0);
 
                     NodeList textHeadingList = headingElement.getChildNodes();
