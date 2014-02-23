@@ -6,6 +6,9 @@
 
 package cambusmonitor;
 
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
+
 /**
  *
  * @author Zhaowei
@@ -17,10 +20,12 @@ public class CambusMonitor {
      */
     
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException, UnsupportedEncodingException {
         // TODO code application logic here
+        
         getUpcomingBus g = new getUpcomingBus();
         g.track();
+        
     }
     
 }
