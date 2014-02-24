@@ -25,8 +25,19 @@ public class CambusMonitor {
         
         getUpcomingBus Red = new getUpcomingBus("red");
         getUpcomingBus Blue = new getUpcomingBus("blue");
+        getUpcomingBus Studio = new getUpcomingBus("studart");
+        getUpcomingBus Hawkdorm= new getUpcomingBus("hawkdorm");
+//        getUpcomingBus Blue = new getUpcomingBus("blue");
+//        getUpcomingBus Blue = new getUpcomingBus("blue");
+        //getUpcomingBus Blue = new getUpcomingBus("blue");
+        //getUpcomingBus Blue = new getUpcomingBus("blue");
+        //getUpcomingBus Blue = new getUpcomingBus("blue");
+        //getUpcomingBus Blue = new getUpcomingBus("blue");
+        
         Red.start();
         Blue.start();
+        Studio.start();
+        Hawkdorm.start();
         
     }
     
