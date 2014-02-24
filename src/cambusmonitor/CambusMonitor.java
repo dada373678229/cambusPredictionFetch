@@ -23,8 +23,10 @@ public class CambusMonitor {
     public static void main(String[] args) throws FileNotFoundException, UnsupportedEncodingException {
         // TODO code application logic here
         
-        getUpcomingBus g = new getUpcomingBus();
-        g.track();
+        getUpcomingBus Red = new getUpcomingBus("red");
+        getUpcomingBus Blue = new getUpcomingBus("blue");
+        Red.start();
+        Blue.start();
         
     }
     
