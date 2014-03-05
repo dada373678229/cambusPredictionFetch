@@ -15,7 +15,11 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Locale;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.w3c.dom.Document;
@@ -32,9 +36,11 @@ import org.xml.sax.SAXParseException;
 public class getUpcomingBus extends Thread{
     //Bus indicates the route
     private String Bus;
+    private String Agency;
     //constructor
-    public getUpcomingBus(String bus){
+    public getUpcomingBus(String Agency, String bus){
         this.Bus=bus;
+        this.Agency=Agency;
     }
     
     public void run()
@@ -43,18 +49,22 @@ public class getUpcomingBus extends Thread{
         Calendar C = Calendar.getInstance();
         
         //current minute, for testing purpose
-        int Min;
-        Min=day.getMinutes();
+        int Min=day.getMinutes();
       
         String filename = generateFilename();
         //System.out.println(filename);
+        Map map = new HashMap();
+        Hashtable ht = new Hashtable();
+        Enumeration ID = ht.keys();
+        String id = "";
+        String location = "";
         
         //temp stores previous location
-        String temp = "";
+        
         PrintWriter writer;
       
         try{
-            writer = new PrintWriter ("/Users/Zhaowei/Desktop/output/"+filename+Bus+".txt", "UTF-8");
+            writer = new PrintWriter ("/Users/yanhaohu/Desktop/output/"+filename+Bus+".txt", "UTF-8");
             //continously fetch data
             while(true){
                 Date d = new Date();
@@ -71,7 +81,7 @@ public class getUpcomingBus extends Thread{
                 //String output =Bus+",";
                 try {
                     //get API xml file
-                    URL xmlURL=new URL("http://api.ebongo.org/buslocation?agency=uiowa&route="+Bus+"&api_key=xApBvduHbU8SRYvc74hJa7jO70Xx4XNO");
+                    URL xmlURL=new URL("http://api.ebongo.org/buslocation?agency="+Agency+"&route="+Bus+"&api_key=xApBvduHbU8SRYvc74hJa7jO70Xx4XNO");
                     InputStream xml = xmlURL.openStream();
                     DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
                     DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
@@ -103,6 +113,7 @@ public class getUpcomingBus extends Thread{
                             NodeList textIdList = idElement.getChildNodes();
                             System.out.println("id : " + ((Node)textIdList.item(0)).getNodeValue().trim());
                             output=output+((Node)textIdList.item(0)).getNodeValue().trim()+",";
+                            id =((Node)textIdList.item(0)).getNodeValue().trim();
                             
                             //System.out.println("output has only id : "+ output);
 
@@ -113,6 +124,7 @@ public class getUpcomingBus extends Thread{
                             NodeList textLatList = latElement.getChildNodes();
                             System.out.println("lat : " + ((Node)textLatList.item(0)).getNodeValue().trim());
                             output=output+((Node)textLatList.item(0)).getNodeValue().trim()+",";
+                            location = ((Node)textLatList.item(0)).getNodeValue().trim();
 
                             //get lng
                             NodeList lngList = firstPredictionElement.getElementsByTagName("lng");
@@ -121,6 +133,7 @@ public class getUpcomingBus extends Thread{
                             NodeList textLngList = lngElement.getChildNodes();
                             System.out.println("lng : " + ((Node)textLngList.item(0)).getNodeValue().trim());
                             output = output +((Node)textLngList.item(0)).getNodeValue().trim()+",";
+                            location += ((Node)textLngList.item(0)).getNodeValue().trim();
                         
                             //get heading
                             NodeList headingList = firstPredictionElement.getElementsByTagName("heading");
@@ -130,18 +143,15 @@ public class getUpcomingBus extends Thread{
                             System.out.println("heading : " + ((Node)textHeadingList.item(0)).getNodeValue().trim());
                             output = output + ((Node)textHeadingList.item(0)).getNodeValue().trim();
                         }
-                        System.out.println("temp: "+temp);
                         System.out.println("output: "+output);
                         //if the location changes, wirte to file
-                        if (! temp.equals(output)){
-                            writer.print(Time);
-                            writer.println(output);    
+                        if (ht.get(id) == null){
+                            ht.put(id, "");
                         }
-                        //set previous location to current location
-                        temp = output;
-                        //System.out.print(output);
-                        //output="";
-                        
+                        if (! ht.get(id).equals(location)){
+                            writer.println(Time+output);    
+                        }
+                        ht.put(id, location);
                     }
                 }
                 catch (SAXParseException err) {
@@ -155,23 +165,11 @@ public class getUpcomingBus extends Thread{
                 catch (Throwable t) {
                     t.printStackTrace ();
                 }
-                //System.out.println("output : "+ output);
-                
-                //if the location changes, wirte to file
-                //if (! temp.equals(output)){
-                    //writer.print(Time);
-                    //writer.println(output);    
-                //}
-                //set previous location to current location
-                //temp = output;
-                //System.out.print(output);
-                //output="";
                 Thread.sleep(1000);
             }
             writer.close();
         }
-        catch (FileNotFoundException e){}
-        catch (UnsupportedEncodingException e){}
+        catch (FileNotFoundException | UnsupportedEncodingException e){}
         catch (InterruptedException ex) {
             Logger.getLogger(getUpcomingBus.class.getName()).log(Level.SEVERE, null, ex);
         }   
@@ -179,36 +177,17 @@ public class getUpcomingBus extends Thread{
     //generate filename
     private String generateFilename(){
         String filename;
-        Calendar C = Calendar.getInstance();
-        String month=Integer.toString(C.get(Calendar.MONTH)+1);
-        String date=Integer.toString(C.get(Calendar.DAY_OF_MONTH));
-        
-        if (month.length()==1){
-            month="0"+month;
-        }
-        if (date.length()==1){
-            date = "0"+date;
-        }
-        filename =""+C.get(Calendar.YEAR)+month+date;
+        Date d = new Date();
+        SimpleDateFormat fn = new SimpleDateFormat ("yyyyMMdd");
+        filename = fn.format(d);
         return filename;
     }
     //generate time
     private String generateTime(){
         String time;
         Date d = new Date();
-        String H = ""+ d.getHours();
-        String M = ""+d.getMinutes();
-        String S = ""+d.getSeconds();
-        if (d.getHours()<10){
-            H = "0"+d.getHours();
-        }
-        if (d.getMinutes()<10){
-            M = "0"+d.getMinutes();
-        }
-        if (d.getSeconds()<10){
-            S = "0"+d.getSeconds();
-        }
-        time = H+M+S+",";
+        SimpleDateFormat fn = new SimpleDateFormat ("hhmmss");
+        time =fn.format(d)+",";
         return time;   
     }
 }
