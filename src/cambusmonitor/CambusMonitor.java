@@ -46,25 +46,27 @@ public class CambusMonitor {
         
         
         weather.start();
-        Red.start();
-        Blue.start();
-        Studio.start();
-        Hawkdorm.start();
-        hawkexpress.start();
-        interdorm.start();
-        mayflower.start();
-        mts.start();
-        pentnight.start();
-        pentacrest.start();
-        seventhave.start();
-        brdwy.start();
-        brdwynw.start();
-        crosspark.start();
-        manville.start();
-        tenthst.start();
-        amexpress.start();
-        amnorthlib.start();
-        lantern.start();
+//        Red.start();
+//        Blue.start();
+//        Studio.start();
+//        Hawkdorm.start();
+//        hawkexpress.start();
+//        interdorm.start();
+//        mayflower.start();
+//        mts.start();
+//        pentnight.start();
+//        pentacrest.start();
+//        
+//        seventhave.start();
+//        brdwy.start();
+//        brdwynw.start();
+//        crosspark.start();
+//        manville.start();
+//        
+//        tenthst.start();
+//        amexpress.start();
+//        amnorthlib.start();
+//        lantern.start();
         
     }
     

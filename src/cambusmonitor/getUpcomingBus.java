@@ -5,11 +5,11 @@
  */
 
 package cambusmonitor;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -43,9 +43,12 @@ public class getUpcomingBus extends Thread{
     }
     
     public void run(){
+        String oldtime;
         while (true){
             Date day=new Date();
-          
+            SimpleDateFormat Sp = new SimpleDateFormat ("yyyyMMdd");
+            oldtime = Sp.format(day);
+            
             //current minute, for testing purpose
 //            int Min=day.getMinutes();
 
@@ -60,7 +63,9 @@ public class getUpcomingBus extends Thread{
             PrintWriter writer;
 
             try{
-                writer = new PrintWriter ("/Users/yanhaohu/Desktop/output/"+filename+Bus+".txt", "UTF-8");
+                File file = new File("/Users/yanhaohu/Desktop/output/"+filename+"/"+filename+Bus+".txt");
+                file.getParentFile().mkdir();
+                writer = new PrintWriter (file);
                 URL xmlURL=new URL("http://api.ebongo.org/buslocation?agency="+Agency+"&route="+Bus+"&api_key=xApBvduHbU8SRYvc74hJa7jO70Xx4XNO");
                 InputStream xml;
                 DocumentBuilderFactory docBuilderFactory;
@@ -75,9 +80,9 @@ public class getUpcomingBus extends Thread{
 //                    if (d.getMinutes()-Min>=1){
 //                        break;
 //                    }
-                    //run as late as 2 am
-                    int H = d.getHours();
-                    if (H == 2){
+                    //run again when date changes
+                    String D = Sp.format(d);
+                    if (!D.equals(oldtime)) {
                         break;
                     }
                     try {
@@ -88,12 +93,12 @@ public class getUpcomingBus extends Thread{
 
                         // normalize text representation
                         doc.getDocumentElement ().normalize ();
-                        System.out.println ("Root element of the doc is " + doc.getDocumentElement().getNodeName());
+                        //System.out.println ("Root element of the doc is " + doc.getDocumentElement().getNodeName());
 
 
                         NodeList listOfPredictions = doc.getElementsByTagName("bus");
                         int totalPredictions = listOfPredictions.getLength();
-                        System.out.println("Total no of predictions : " + totalPredictions);
+                        //System.out.println("Total no of predictions : " + totalPredictions);
 
                         //loop through all prediction (buses)
                         for(int s=0; s<listOfPredictions.getLength() ; s++){
@@ -108,7 +113,7 @@ public class getUpcomingBus extends Thread{
                                 Element idElement = (Element)idList.item(0);
 
                                 NodeList textIdList = idElement.getChildNodes();
-                                System.out.println("id : " + ((Node)textIdList.item(0)).getNodeValue().trim());
+                                //System.out.println("id : " + ((Node)textIdList.item(0)).getNodeValue().trim());
                                 output=output+((Node)textIdList.item(0)).getNodeValue().trim()+",";
                                 id =((Node)textIdList.item(0)).getNodeValue().trim(); //get current id
 
@@ -117,7 +122,7 @@ public class getUpcomingBus extends Thread{
                                 Element latElement = (Element)latList.item(0);
 
                                 NodeList textLatList = latElement.getChildNodes();
-                                System.out.println("lat : " + ((Node)textLatList.item(0)).getNodeValue().trim());
+                                //System.out.println("lat : " + ((Node)textLatList.item(0)).getNodeValue().trim());
                                 output=output+((Node)textLatList.item(0)).getNodeValue().trim()+",";
                                 location = ((Node)textLatList.item(0)).getNodeValue().trim();
 
@@ -126,7 +131,7 @@ public class getUpcomingBus extends Thread{
                                 Element lngElement = (Element)lngList.item(0);
 
                                 NodeList textLngList = lngElement.getChildNodes();
-                                System.out.println("lng : " + ((Node)textLngList.item(0)).getNodeValue().trim());
+                                //System.out.println("lng : " + ((Node)textLngList.item(0)).getNodeValue().trim());
                                 output = output +((Node)textLngList.item(0)).getNodeValue().trim()+",";
                                 location += ((Node)textLngList.item(0)).getNodeValue().trim(); //get current location
 
@@ -135,10 +140,10 @@ public class getUpcomingBus extends Thread{
                                 Element headingElement = (Element)headingList.item(0);
 
                                 NodeList textHeadingList = headingElement.getChildNodes();
-                                System.out.println("heading : " + ((Node)textHeadingList.item(0)).getNodeValue().trim());
+                                //System.out.println("heading : " + ((Node)textHeadingList.item(0)).getNodeValue().trim());
                                 output = output + ((Node)textHeadingList.item(0)).getNodeValue().trim();
                             }
-                            System.out.println("output: "+Time+output);
+                            System.out.println("OutPut: "+Time+output);
                             //initialize hashtable
                             if (ht.get(id) == null){
                                 ht.put(id, "");
@@ -160,12 +165,11 @@ public class getUpcomingBus extends Thread{
                     } catch (IOException ex) {
                         Logger.getLogger(getUpcomingBus.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    Thread.sleep(1000);
+                    Thread.sleep(2000);
                 }
                 writer.close();
             }
-            catch (FileNotFoundException | UnsupportedEncodingException e){}
-            catch (InterruptedException | MalformedURLException | ParserConfigurationException ex) {
+            catch (InterruptedException | MalformedURLException | ParserConfigurationException | FileNotFoundException ex) {
                 Logger.getLogger(getUpcomingBus.class.getName()).log(Level.SEVERE, null, ex);
             }   
         }
